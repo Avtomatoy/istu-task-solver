@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+    <title>Добавить тесткейс</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+
+<form id="test-case-form" action="#" th:action="@{/task/__${taskId}__/testcase}" method="post">
+
+    <p>Идентификатор</p>
+    <input type="text" id="test-case-id" value="" required>
+
+    <div th:each="field: ${expectedArgs.fields}">
+        <p th:text="${field}"></p>
+        <input type="text" class="field-value" th:attr="data-fieldname=${field}" value="" required>
+    </div>
+
+    <p>Ожидаемый ответ</p>
+    <textarea id="test-case-answer"></textarea>
+
+    <p><input type="submit" value="Сохранить тесткейс"/></p>
+</form>
+
+
+<a th:href="@{/task-ui/__${taskId}__/testcase}">
+    <button>Назад к списку тесткейсов</button>
+</a>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    var taskId = /*[[${taskId}]]*/ '';
+    /*]]>*/
+
+    function InputArguments() {
+        this.values = {}
+    }
+
+    function Answer() {
+        this.value = ""
+    }
+
+    function TestCase() {
+        this.id = ""
+        this.arguments = new InputArguments()
+        this.answer = new Answer()
+    }
+
+    async function handleForm(event) {
+        event.preventDefault()
+        console.log("Отправлено!")
+
+        let testCaseObject = new TestCase()
+
+        testCaseObject.id = document.getElementById('test-case-id').value
+
+        for (const field of document.getElementsByClassName('field-value')) {
+            let key = field.getAttribute('data-fieldname')
+            testCaseObject.arguments.values[key] = field.value
+        }
+
+        testCaseObject.answer.value = document.getElementById('test-case-answer').value
+
+        let jsonBody = JSON.stringify(testCaseObject);
+        console.log(jsonBody)
+        let response = await fetch('/task/' + taskId + "/testcase", {
+            method: 'POST',
+            body: jsonBody,
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+
+        if (response.ok) {
+            alert("Тесткейс успешно сохранён")
+            form.reset()
+        } else {
+            alert(await response.text())
+        }
+    }
+
+    const form = document.getElementById('test-case-form')
+    form.addEventListener('submit', handleForm)
+
+</script>
+
+</body>
+</html>

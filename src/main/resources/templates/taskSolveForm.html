@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+    <title>Решить задачу</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+
+<form action="#" th:action="@{/task-ui/__${taskId}__/solve}" th:object="${taskFormData}" method="post">
+
+    <div th:each="field: ${taskFormData.expectedArgs.fields}">
+        <p th:text="${field}"></p>
+        <input type="text" th:field="*{inputArgs.values['__${field}__']}" value="">
+    </div>
+    <div th:if="${taskFormData.validationResult != true}">
+        <p th:each="error: ${taskFormData.validationResult.errorMessages}" th:text="${error}"></p>
+    </div>
+    <div th:if="${taskFormData.answer != null}">
+        <p>Ответ:</p>
+        <textarea th:text="${taskFormData.answer.value}"></textarea>
+    </div>
+
+    <p><input type="submit" value="Решить"/></p>
+</form>
+
+<a th:href="@{/task-ui}"><button>Назад к списку задач</button></a>
+
+</body>
+</html>

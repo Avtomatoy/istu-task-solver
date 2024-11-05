@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+    <title>Тесткейсы</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 50%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        .good-answer {
+            background-color: chartreuse;
+        }
+
+        .bad-answer {
+            background-color: crimson;
+        }
+
+        .test-case {
+            margin-top: 25px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Тесткейсы для задачи <span th:text="${taskId}"></span></h1>
+
+<div style="margin-top: 25px">
+    <button th:attr="data-task-id=${taskId}" th:onclick="checkAllTestCases()">Проверить все тесткейсы</button>
+</div>
+
+<div class="test-case" th:each="testCase: ${testCases}" th:id="${testCase.id}">
+    <div>
+        <span th:text="${testCase.id}"></span>
+        <button
+                class="delete-button"
+                th:attr="data-test-case-id=${testCase.id}"
+                th:onclick="deleteTestCase(this.getAttribute('data-test-case-id'))">X
+        </button>
+    </div>
+    <div th:each="arg: ${testCase.arguments.values}">
+        <span th:text="${arg.key}"></span>
+        <input type="text" th:value="${arg.value}" disabled>
+    </div>
+    <div>
+        <p>Ожидаемый ответ:</p>
+        <textarea th:text="${testCase.answer.value}" disabled></textarea>
+    </div>
+
+    <div class="test-case-check" hidden="hidden">
+        <p>Фактический ответ:</p>
+        <textarea disabled></textarea>
+    </div>
+
+</div>
+
+<div style="margin-top: 25px">
+    <a th:href="@{/task-ui/__${taskId}__/testcase/add}">
+        <button>Добавить новый тест-кейс</button>
+    </a>
+    <a th:href="@{/task-ui}">
+        <button>Назад к списку задач</button>
+    </a>
+</div>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    var taskId = /*[[${taskId}]]*/ '';
+
+    /*]]>*/
+
+    function InputArguments() {
+        this.values = {}
+    }
+
+    function Answer() {
+        this.value = ""
+    }
+
+    function TestCase() {
+        this.id = ""
+        this.arguments = new InputArguments()
+        this.answer = new Answer()
+    }
+
+    async function deleteTestCase(testCaseId) {
+        let response = await fetch('/task/' + taskId + '/testcase/' + testCaseId, {
+            method: 'DELETE'
+        })
+        if (!response.ok) {
+            alert("Ошибка при удалении тесткейса")
+            return
+        }
+
+        location.reload()
+    }
+
+    async function checkTestCase(testCaseId) {
+        let response = await fetch('/task/' + taskId + '/testcase/' + testCaseId + '/check', {
+            method: 'POST'
+        })
+
+        if (!response.ok) {
+            alert(response.text())
+            return null
+        }
+
+        return await response.json()
+    }
+
+    async function checkAllTestCases() {
+        let testCases = document.getElementsByClassName('test-case')
+
+        for (const testCase of testCases) {
+            let testCaseId = testCase.id
+            let check = await checkTestCase(testCaseId)
+            if (check == null) {
+                continue
+            }
+
+            let actualAnswerElement = testCase.getElementsByClassName('test-case-check')[0]
+            if (check.actualAnswer.value === check.testCase.answer.value) {
+                actualAnswerElement.classList.add('good-answer')
+            } else {
+                actualAnswerElement.classList.add('bad-answer')
+            }
+            actualAnswerElement.hidden = false
+            actualAnswerElement.getElementsByTagName('textarea')[0].textContent = check.actualAnswer.value
+        }
+    }
+
+</script>
+
+</body>
+</html>
