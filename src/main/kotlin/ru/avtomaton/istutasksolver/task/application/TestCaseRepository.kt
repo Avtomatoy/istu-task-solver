@@ -2,7 +2,7 @@ package ru.avtomaton.istutasksolver.task.application
 
 import org.springframework.stereotype.Component
 import ru.avtomaton.istutasksolver.task.domain.TestCase
-import ru.avtomaton.istutasksolver.task.error.TestCaseAlreadyExistException
+import ru.avtomaton.istutasksolver.error.TestCaseAlreadyExistException
 
 interface TaskTestCaseRepository {
 

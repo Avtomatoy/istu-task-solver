@@ -1,4 +1,4 @@
-package ru.avtomaton.istutasksolver.task.error
+package ru.avtomaton.istutasksolver.error
 
 import org.springframework.http.HttpStatus
 import ru.avtomaton.istutasksolver.task.domain.ValidationResult
@@ -26,4 +26,19 @@ class TestCaseAlreadyExistException(taskId: String, testCaseId: String) : TaskSo
 class InputArgumentsNotValidException(taskId: String, validationResult: ValidationResult) : TaskSolverException(
     message = "Аргументы тесткейса для задачи $taskId не валидны:\n$validationResult",
     httpStatus = HttpStatus.BAD_REQUEST,
+)
+
+class UnauthorizedException : TaskSolverException(
+    message = "Пользователь не авторизован",
+    httpStatus = HttpStatus.UNAUTHORIZED,
+)
+
+class ForbiddenException : TaskSolverException(
+    message = "Нет прав для данной операции",
+    httpStatus = HttpStatus.FORBIDDEN,
+)
+
+class UserAlreadyExistException : TaskSolverException(
+    message = "Пользователь с таким логином уже существует",
+    httpStatus = HttpStatus.CONFLICT,
 )

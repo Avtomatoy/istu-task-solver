@@ -1,4 +1,4 @@
-package ru.avtomaton.istutasksolver.task.error
+package ru.avtomaton.istutasksolver.error
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

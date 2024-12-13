@@ -2,9 +2,9 @@ package ru.avtomaton.istutasksolver.task.application
 
 import org.springframework.stereotype.Component
 import ru.avtomaton.istutasksolver.task.domain.*
-import ru.avtomaton.istutasksolver.task.error.InputArgumentsNotValidException
-import ru.avtomaton.istutasksolver.task.error.TaskNotFoundException
-import ru.avtomaton.istutasksolver.task.error.TestCaseNotFoundException
+import ru.avtomaton.istutasksolver.error.InputArgumentsNotValidException
+import ru.avtomaton.istutasksolver.error.TaskNotFoundException
+import ru.avtomaton.istutasksolver.error.TestCaseNotFoundException
 
 @Component
 class TaskService(

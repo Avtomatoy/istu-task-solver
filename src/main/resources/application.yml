@@ -2,4 +2,17 @@ spring:
   application:
     name: istu-task-solver
 
+  datasource:
+    url: jdbc:h2:file:/home/avtomaton/test/istu-task-solver
+    username: avtomaton
+    password: 1234567
+    driver-class-name: org.h2.Driver
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  security:
+    basic:
+      enabled: false
