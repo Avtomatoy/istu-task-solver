@@ -134,7 +134,7 @@
             }
 
             let actualAnswerElement = testCase.getElementsByClassName('test-case-check')[0]
-            if (check.actualAnswer.value === check.testCase.answer.value) {
+            if (check.actualAnswer.value.trim() === check.testCase.answer.value.trim()) {
                 actualAnswerElement.classList.add('good-answer')
             } else {
                 actualAnswerElement.classList.add('bad-answer')
