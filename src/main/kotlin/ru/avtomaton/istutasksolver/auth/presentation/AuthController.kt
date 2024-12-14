@@ -1,15 +1,11 @@
 package ru.avtomaton.istutasksolver.auth.presentation
 
-import jakarta.servlet.http.HttpServletRequest
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ServerWebExchange
 import ru.avtomaton.istutasksolver.auth.application.AuthenticationService
+import ru.avtomaton.istutasksolver.auth.domain.UserRole
 import ru.avtomaton.istutasksolver.auth.infrastructure.Users
 import ru.avtomaton.istutasksolver.auth.presentation.model.Credentials
-import ru.avtomaton.istutasksolver.error.UnauthorizedException
 
 @RestController
 @RequestMapping("/auth")
@@ -18,23 +14,22 @@ class AuthController(
 ) {
 
     @PostMapping("/register")
-    suspend fun register(request: HttpServletRequest, @RequestBody credentials: Credentials) {
-        authenticationService.register(request, credentials.login, credentials.password)
+    suspend fun register(exchange: ServerWebExchange, @RequestBody credentials: Credentials) {
+        authenticationService.register(exchange, credentials.login, credentials.password)
     }
 
     @PostMapping("/login")
-    suspend fun login(request: HttpServletRequest, @RequestBody credentials: Credentials) {
-        authenticationService.login(request, credentials.login, credentials.password)
+    suspend fun login(exchange: ServerWebExchange, @RequestBody credentials: Credentials) {
+        authenticationService.login(exchange, credentials.login, credentials.password)
     }
 
     @PostMapping("/logout")
-    suspend fun logout(request: HttpServletRequest) {
-        authenticationService.logout(request)
+    suspend fun logout(exchange: ServerWebExchange) {
+        authenticationService.logout(exchange)
     }
 
-    @GetMapping("check")
-    suspend fun check() {
-        Users.currentOrNull()
-            ?: throw UnauthorizedException()
+    @GetMapping("/me/roles")
+    suspend fun roles(exchange: ServerWebExchange): Set<UserRole> {
+        return Users.currentOrThrow().roles
     }
 }

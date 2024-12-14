@@ -13,5 +13,4 @@ class ErrorController {
             .status(ex.httpStatus)
             .body(ex.message)
     }
-
 }

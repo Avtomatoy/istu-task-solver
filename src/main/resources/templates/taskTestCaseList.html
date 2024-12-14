@@ -103,7 +103,7 @@
             method: 'DELETE'
         })
         if (!response.ok) {
-            alert("Ошибка при удалении тесткейса")
+            alert("Ошибка при удалении тесткейса:" + await response.text())
             return
         }
 
@@ -116,7 +116,7 @@
         })
 
         if (!response.ok) {
-            alert(response.text())
+            alert(await response.text())
             return null
         }
 

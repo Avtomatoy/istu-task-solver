@@ -1,32 +1,31 @@
 package ru.avtomaton.istutasksolver.auth.application
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Component
+import org.springframework.web.server.CoWebFilter
+import org.springframework.web.server.CoWebFilterChain
+import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.server.awaitSession
 import ru.avtomaton.istutasksolver.auth.infrastructure.Users
-import java.util.UUID
+import java.util.*
 
 @Component
 class SessionWebFilter(
     private val userRepository: UserRepository,
-) : Filter {
+) : CoWebFilter() {
 
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        runBlocking {
-            val user  = request.tryGetUserId()?.let {
-                userRepository.findById(userId = it)
-            }
+    override suspend fun filter(exchange: ServerWebExchange, chain: CoWebFilterChain) {
+        val user  = exchange.tryGetUserId()?.let {
+            userRepository.findById(userId = it)
+        }
 
-            withContext(Users(user)) {
-                val d = coroutineContext
-                println(d)
-                chain.doFilter(request, response)
-            }
+        withContext(Users(user)) {
+            chain.filter(exchange)
         }
     }
 
-    suspend fun ServletRequest.tryGetUserId(): UUID? {
-        val userId = (this as? HttpServletRequest)?.session?.getAttribute("userId")
+    suspend fun ServerWebExchange.tryGetUserId(): UUID? {
+        val userId = awaitSession().attributes["userId"]
         return userId?.toString()?.let {
             try {
                 UUID.fromString(it)
