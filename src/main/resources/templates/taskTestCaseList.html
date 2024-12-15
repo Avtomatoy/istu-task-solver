@@ -3,6 +3,8 @@
 <head>
     <title>Тесткейсы</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <style>
         table {
@@ -35,45 +37,71 @@
 
     </style>
 </head>
-<body>
+<body style="margin-left: 10px">
+
+<header style="margin-bottom: 15px">
+    <span th:text="${user.login}"></span>
+    <span th:text="${user.roles}"></span>
+    <button id="logout-button" class="btn btn-danger" onclick="logoutHandler()">Выйти из системы</button>
+    <script>
+        async function logoutHandler() {
+            await fetch("/auth/logout", {
+                method: "POST"
+            })
+            window.location.replace("/auth-ui/login")
+        }
+    </script>
+</header>
 
 <h1>Тесткейсы для задачи <span th:text="${taskId}"></span></h1>
 
-<div style="margin-top: 25px">
-    <button th:attr="data-task-id=${taskId}" th:onclick="checkAllTestCases()">Проверить все тесткейсы</button>
+<div class="test-cases" th:if="${not #lists.isEmpty(testCases)}">
+    <div style="margin-top: 25px">
+        <button class="btn btn-success" th:attr="data-task-id=${taskId}" th:onclick="checkAllTestCases()">Проверить все тесткейсы</button>
+    </div>
+    <div class="test-case" th:each="testCase: ${testCases}" th:id="${testCase.id}">
+        <div>
+            <span th:text="${testCase.id}"></span>
+            <button
+                    class="delete-button btn btn-danger"
+                    th:attr="data-test-case-id=${testCase.id}"
+                    th:onclick="deleteTestCase(this.getAttribute('data-test-case-id'))"
+                    th:if="${#sets.contains(user.roles, T(ru.avtomaton.istutasksolver.auth.domain.UserRole).ADMIN)}"
+            >X</button>
+        </div>
+        <div th:each="arg: ${testCase.arguments.values}">
+            <span th:text="${arg.key}"></span>
+            <input type="text" th:value="${arg.value}" disabled>
+        </div>
+        <div>
+            <p>Ожидаемый ответ:</p>
+            <textarea th:text="${testCase.answer.value}" disabled></textarea>
+        </div>
+
+        <div class="test-case-check" hidden="hidden">
+            <p>Фактический ответ:</p>
+            <textarea disabled></textarea>
+        </div>
+    </div>
+</div>
+<div class="test-cases" th:if="${#lists.isEmpty(testCases)}">
+    <p>Тестейсов пока нет...</p>
 </div>
 
-<div class="test-case" th:each="testCase: ${testCases}" th:id="${testCase.id}">
-    <div>
-        <span th:text="${testCase.id}"></span>
-        <button
-                class="delete-button"
-                th:attr="data-test-case-id=${testCase.id}"
-                th:onclick="deleteTestCase(this.getAttribute('data-test-case-id'))">X
-        </button>
-    </div>
-    <div th:each="arg: ${testCase.arguments.values}">
-        <span th:text="${arg.key}"></span>
-        <input type="text" th:value="${arg.value}" disabled>
-    </div>
-    <div>
-        <p>Ожидаемый ответ:</p>
-        <textarea th:text="${testCase.answer.value}" disabled></textarea>
-    </div>
 
-    <div class="test-case-check" hidden="hidden">
-        <p>Фактический ответ:</p>
-        <textarea disabled></textarea>
-    </div>
-
-</div>
 
 <div style="margin-top: 25px">
-    <a th:href="@{/task-ui/__${taskId}__/testcase/add}">
-        <button>Добавить новый тест-кейс</button>
-    </a>
+
+    <div th:if="${
+    #sets.contains(user.roles, T(ru.avtomaton.istutasksolver.auth.domain.UserRole).SUPPORT)
+    or #sets.contains(user.roles, T(ru.avtomaton.istutasksolver.auth.domain.UserRole).ADMIN)
+    }">
+        <a th:href="@{/task-ui/__${taskId}__/testcase/add}">
+            <button class="btn btn-primary">Добавить новый тест-кейс</button>
+        </a>
+    </div>
     <a th:href="@{/task-ui}">
-        <button>Назад к списку задач</button>
+        <button  class="btn btn-secondary">Назад к списку задач</button>
     </a>
 </div>
 

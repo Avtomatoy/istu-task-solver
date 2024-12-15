@@ -1,8 +1,16 @@
 package ru.avtomaton.istutasksolver.auth.domain
 
+/**
+ * Роли пользователя.
+ */
 enum class UserRole {
-
-    COMMON,
+    /**
+     * Помощник.
+     */
+    SUPPORT,
+    /**
+     * Администратор.
+     */
     ADMIN,
 
 }

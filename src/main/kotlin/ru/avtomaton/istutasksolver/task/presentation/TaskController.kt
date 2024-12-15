@@ -2,6 +2,8 @@ package ru.avtomaton.istutasksolver.task.presentation
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import ru.avtomaton.istutasksolver.auth.application.AuthorizationService
+import ru.avtomaton.istutasksolver.auth.domain.UserRole
 import ru.avtomaton.istutasksolver.task.application.Task
 import ru.avtomaton.istutasksolver.task.application.TaskService
 import ru.avtomaton.istutasksolver.task.domain.TestCase
@@ -11,6 +13,7 @@ import ru.avtomaton.istutasksolver.task.domain.TestCaseCheck
 @RequestMapping("/task")
 class TaskController(
     private val taskService: TaskService,
+    private val authorizationService: AuthorizationService,
 ) {
 
     @GetMapping
@@ -24,6 +27,7 @@ class TaskController(
         @PathVariable taskId: String,
         @RequestBody testCase: TestCase,
     ) {
+        authorizationService.authorize(UserRole.SUPPORT, UserRole.ADMIN)
         taskService.addTestCase(taskId, testCase)
     }
 
@@ -32,6 +36,7 @@ class TaskController(
         @PathVariable taskId: String,
         @PathVariable testCaseId: String,
     ) {
+        authorizationService.authorize(UserRole.ADMIN)
         taskService.deleteTestCase(taskId, testCaseId)
     }
 

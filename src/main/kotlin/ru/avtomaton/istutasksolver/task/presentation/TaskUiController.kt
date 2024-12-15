@@ -3,6 +3,8 @@ package ru.avtomaton.istutasksolver.task.presentation
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
+import ru.avtomaton.istutasksolver.auth.domain.User
+import ru.avtomaton.istutasksolver.auth.infrastructure.Users
 import ru.avtomaton.istutasksolver.task.application.TaskService
 import ru.avtomaton.istutasksolver.task.domain.Answer
 import ru.avtomaton.istutasksolver.task.domain.ExpectedArguments
@@ -16,14 +18,15 @@ class TaskUiController(
 ) {
 
     @GetMapping
-    fun index(model: Model): String {
+    suspend fun index(model: Model): String = authorized {
         val tasks = taskService.getAll()
         model.addAttribute("tasks", tasks)
-        return "taskList"
+        model.addAttribute("user", it)
+        "taskList"
     }
 
     @GetMapping("/{taskId}")
-    fun taskForm(@PathVariable taskId: String, model: Model): String {
+    suspend fun taskForm(@PathVariable taskId: String, model: Model): String = authorized {
         val expectedArgs = taskService.getExpectedArgs(taskId)
 
         val taskFormData = TaskFormData(
@@ -32,16 +35,17 @@ class TaskUiController(
         )
 
         model.addAttribute("taskFormData", taskFormData)
+        model.addAttribute("user", it)
 
-        return "taskSolveForm"
+        "taskSolveForm"
     }
 
     @PostMapping("/{taskId}/solve")
-    fun solveTask(
+    suspend fun solveTask(
         @PathVariable taskId: String,
         @ModelAttribute("taskFormData") taskFormData: TaskFormData,
         model: Model,
-    ): String {
+    ): String = authorized {
         val validationResult = taskService.validate(taskId, taskFormData.inputArgs)
 
         var responseFormData = TaskFormData(
@@ -59,26 +63,36 @@ class TaskUiController(
         }
 
         model.addAttribute("taskFormData", responseFormData)
-        return "taskSolveForm"
+        model.addAttribute("user", it)
+
+        "taskSolveForm"
     }
 
     @GetMapping("/{taskId}/testcase")
-    suspend fun testCaseList(@PathVariable taskId: String, model: Model): String {
+    suspend fun testCaseList(@PathVariable taskId: String, model: Model): String = authorized {
         val testCases = taskService.getAllTestCases(taskId)
 
         model.addAttribute("taskId", taskId)
         model.addAttribute("testCases", testCases)
+        model.addAttribute("user", it)
 
-        return "taskTestCaseList"
+        "taskTestCaseList"
     }
 
     @GetMapping("/{taskId}/testcase/add")
-    suspend fun addTestCase(@PathVariable taskId: String, model: Model): String {
+    suspend fun addTestCase(@PathVariable taskId: String, model: Model): String = authorized {
         val expectedArgs = taskService.getExpectedArgs(taskId)
         model.addAttribute("taskId", taskId)
         model.addAttribute("expectedArgs", expectedArgs)
+        model.addAttribute("user", it)
 
-        return "taskTestCaseForm"
+        "taskTestCaseForm"
+    }
+
+    private suspend fun authorized(block: suspend (user: User) -> String): String {
+        // если пользователь не авторизован, то он перенаправляется на страницу входа в систему.
+        val user = Users.currentOrNull() ?: return "redirect:/auth-ui/login"
+        return block(user)
     }
 
     data class TaskFormData(

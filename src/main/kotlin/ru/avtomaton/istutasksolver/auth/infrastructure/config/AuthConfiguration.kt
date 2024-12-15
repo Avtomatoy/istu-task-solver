@@ -1,4 +1,4 @@
-package ru.avtomaton.istutasksolver.auth.infrastructure
+package ru.avtomaton.istutasksolver.auth.infrastructure.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,14 +9,19 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.SecurityWebFilterChain
 
 @Configuration
-@EnableWebFluxSecurity
+@EnableWebFluxSecurity // включает в целом авторизацию
 class AuthConfiguration {
-
+    /**
+     * Создание кодировщика паролей.
+     */
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
-
+    /**
+     * Настройка системы безопасности Spring.
+     * Базовые политики здесь отключаются, т.к. у нас собственная система авторизации.
+     */
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
